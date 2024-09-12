@@ -24,7 +24,7 @@ function BookmarkCard({
           source: getScreenshotUrl(bookmark.url),
           fallback: Icon.Globe,
         },
-        tooltip: bookmark.title,
+        tooltip: "",
       }}
       title={bookmark.title}
       subtitle={bookmark.tags.join(", ")}

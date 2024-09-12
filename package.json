@@ -27,7 +27,10 @@
     "@raycast/api": "^1.82.5",
     "@raycast/utils": "^1.16.3",
     "@types/uuid": "^10.0.0",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "openai": "^4.0.0",
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12"
   },
   "devDependencies": {
     "@raycast/eslint-config": "^1.0.8",
