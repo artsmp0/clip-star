@@ -24,6 +24,7 @@
   "failedToDeleteClip": "删除剪藏失败",
   "clipAlreadyExists": "剪藏已存在",
   "clipAlreadyExistsMessage": "具有此 URL 的剪藏已存在。您想要更新它吗？",
-  "update": "更新",
-  "cancel": "取消"
+  "show": "查看",
+  "cancel": "取消",
+  "viewInGallery": "在剪藏列表中查看"
 }

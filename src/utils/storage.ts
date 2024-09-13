@@ -9,7 +9,15 @@ export async function getClips(): Promise<Clip[]> {
 }
 
 export async function saveClips(clips: Clip[]): Promise<void> {
-  await LocalStorage.setItem(STORAGE_KEY, JSON.stringify(clips));
+  const clipsData = clips.map((clip) => ({
+    id: clip.id,
+    title: clip.title,
+    url: clip.url,
+    tags: clip.tags,
+    createdAt: clip.createdAt,
+    updatedAt: clip.updatedAt,
+  }));
+  await LocalStorage.setItem(STORAGE_KEY, JSON.stringify(clipsData));
 }
 
 export async function updateClip(updatedClip: Clip): Promise<void> {

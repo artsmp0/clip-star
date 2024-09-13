@@ -24,6 +24,7 @@
   "failedToDeleteClip": "Failed to delete clip",
   "clipAlreadyExists": "Clip Already Exists",
   "clipAlreadyExistsMessage": "A clip with this URL already exists. Do you want to update it?",
-  "update": "Update",
-  "cancel": "Cancel"
+  "show": "Show",
+  "cancel": "Cancel",
+  "viewInGallery": "View in Gallery"
 }

@@ -1,16 +1,29 @@
-import { Form, ActionPanel, Action, showToast, Toast, popToRoot, Clipboard, confirmAlert } from "@raycast/api";
+import {
+  Form,
+  ActionPanel,
+  Action,
+  showToast,
+  Toast,
+  popToRoot,
+  Clipboard,
+  Alert,
+  useNavigation,
+  confirmAlert,
+} from "@raycast/api";
 import { v4 as uuidv4 } from "uuid";
 import { getClips, saveClips } from "./utils/storage";
 import { Clip } from "./types";
 import { useState, useEffect } from "react";
 import { generateClipTitleAndTags } from "./utils/deepseeker";
 import { getLocalizedStrings } from "./utils/i18n";
+import ClipGallery from "./clip-gallery";
 
 export default function AddClip() {
   const [urlFromClipboard, setUrlFromClipboard] = useState("");
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { push } = useNavigation();
 
   // 获取本地化字符串
   const strings = getLocalizedStrings();
@@ -54,16 +67,15 @@ export default function AddClip() {
       const existingClip = clips.find((clip) => clip.url === values.url);
 
       if (existingClip) {
-        const options = {
+        const options: Alert.Options = {
           title: strings.clipAlreadyExists,
           message: strings.clipAlreadyExistsMessage,
           primaryAction: {
-            title: strings.update,
-            onAction: () => updateExistingClip(existingClip, values),
+            title: strings.show,
+            onAction: () => push(<ClipGallery initialFilterUrl={values.url} />),
           },
           dismissAction: {
             title: strings.cancel,
-            onAction: () => {},
           },
         };
         await confirmAlert(options);
@@ -87,20 +99,6 @@ export default function AddClip() {
     };
     await saveClips([...clips, newClip]);
     showToast(Toast.Style.Success, strings.clipAdded);
-    popToRoot();
-  }
-
-  async function updateExistingClip(existingClip: Clip, values: { title: string; url: string; tags: string }) {
-    const clips = await getClips();
-    const updatedClip: Clip = {
-      ...existingClip,
-      title: values.title,
-      tags: values.tags.split(",").map((tag) => tag.trim()),
-      updatedAt: Date.now(),
-    };
-    const updatedClips = clips.map((clip) => (clip.id === existingClip.id ? updatedClip : clip));
-    await saveClips(updatedClips);
-    showToast(Toast.Style.Success, strings.clipUpdated);
     popToRoot();
   }
 
