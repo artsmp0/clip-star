@@ -4,12 +4,16 @@ import { getBookmarks, saveBookmarks } from "./utils/storage";
 import { Bookmark } from "./types";
 import { useState, useEffect } from "react";
 import { generateTitleAndTags } from "./utils/deepseeker";
+import { getLocalizedStrings } from "./utils/i18n";
 
 export default function AddBookmark() {
   const [urlFromClipboard, setUrlFromClipboard] = useState("");
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // 获取本地化字符串
+  const strings = getLocalizedStrings();
 
   useEffect(() => {
     async function getClipboardContent() {
@@ -38,8 +42,7 @@ export default function AddBookmark() {
       setTitle(generatedTitle);
       setTags(generatedTags.join(", "));
     } catch (error) {
-      console.log("error: ", error);
-      showToast(Toast.Style.Failure, "生成标题和标签失败");
+      showToast(Toast.Style.Failure, strings.generateTitleAndTagsFailed);
     } finally {
       setIsLoading(false);
     }
@@ -57,10 +60,10 @@ export default function AddBookmark() {
         updatedAt: Date.now(),
       };
       await saveBookmarks([...bookmarks, newBookmark]);
-      showToast(Toast.Style.Success, "书签已添加");
+      showToast(Toast.Style.Success, strings.bookmarkAdded);
       popToRoot();
     } catch (error) {
-      showToast(Toast.Style.Failure, "添加书签失败");
+      showToast(Toast.Style.Failure, strings.failedToAddBookmark);
     }
   }
 
@@ -73,16 +76,22 @@ export default function AddBookmark() {
       }
       isLoading={isLoading}
     >
-      <Form.TextField id="title" title="标题" value={title} onChange={setTitle} />
+      <Form.TextField id="title" title={strings.title} value={title} onChange={setTitle} />
       <Form.TextField
         id="url"
-        title="URL"
+        title={strings.url}
         value={urlFromClipboard}
         onChange={(newUrl) => {
           setUrlFromClipboard(newUrl);
         }}
       />
-      <Form.TextField id="tags" title="标签" value={tags} onChange={setTags} placeholder="用逗号分隔多个标签" />
+      <Form.TextField
+        id="tags"
+        title={strings.tags}
+        value={tags}
+        onChange={setTags}
+        placeholder={strings.separateTagsWithComma}
+      />
     </Form>
   );
 }

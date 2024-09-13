@@ -2,6 +2,7 @@ import { Form, ActionPanel, Action, showToast, Toast, useNavigation } from "@ray
 import { useState } from "react";
 import { Bookmark } from "./types";
 import { updateBookmark } from "./utils/storage";
+import { getLocalizedStrings } from "./utils/i18n";
 
 export function EditBookmarkForm({
   bookmark,
@@ -15,6 +16,9 @@ export function EditBookmarkForm({
   const [tags, setTags] = useState(bookmark.tags.join(", "));
   const { pop } = useNavigation();
 
+  // 获取本地化字符串
+  const strings = getLocalizedStrings();
+
   async function handleSubmit() {
     try {
       const updatedBookmark: Bookmark = {
@@ -27,11 +31,11 @@ export function EditBookmarkForm({
           .filter((tag) => tag !== ""),
       };
       await updateBookmark(updatedBookmark);
-      showToast(Toast.Style.Success, "书签已更新");
+      showToast(Toast.Style.Success, strings.bookmarkUpdated);
       onEdit(updatedBookmark);
       pop();
     } catch (error) {
-      showToast(Toast.Style.Failure, "更新书签失败");
+      showToast(Toast.Style.Failure, strings.failedToUpdateBookmark);
     }
   }
 
@@ -39,20 +43,27 @@ export function EditBookmarkForm({
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="更新书签" onSubmit={handleSubmit} />
+          <Action.SubmitForm title={strings.updateBookmark} onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >
-      <Form.TextField id="title" title="标题" value={title} onChange={setTitle} />
-      <Form.TextField id="url" title="URL" value={url} onChange={setUrl} />
-      <Form.TextField id="tags" title="标签" value={tags} onChange={setTags} />
+      <Form.TextField id="title" title={strings.title} value={title} onChange={setTitle} />
+      <Form.TextField id="url" title={strings.url} value={url} onChange={setUrl} />
+      <Form.TextField
+        id="tags"
+        title={strings.tags}
+        value={tags}
+        onChange={setTags}
+        placeholder={strings.separateTagsWithComma}
+      />
     </Form>
   );
 }
 
 export function editBookmark(bookmark: Bookmark): Promise<Bookmark | null> {
   return new Promise((resolve) => {
-    showToast(Toast.Style.Animated, "正在编辑书签...");
+    const strings = getLocalizedStrings();
+    showToast(Toast.Style.Animated, strings.editingBookmark);
     <EditBookmarkForm
       bookmark={bookmark}
       onEdit={(updatedBookmark) => {

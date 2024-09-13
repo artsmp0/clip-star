@@ -3,6 +3,12 @@ import { useState, useEffect } from "react";
 import { getBookmarks, saveBookmarks } from "./utils/storage";
 import { Bookmark } from "./types";
 import { EditBookmarkForm } from "./edit-clip";
+import { getLocalizedStrings } from "./utils/i18n";
+
+// 导入本地化字符串
+import en from "./locales/en.json";
+
+type LocaleStrings = typeof en;
 
 function getScreenshotUrl(url: string) {
   return `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=false&embed=screenshot.url`;
@@ -12,10 +18,12 @@ function BookmarkCard({
   bookmark,
   onEdit,
   onDelete,
+  strings,
 }: {
   bookmark: Bookmark;
   onEdit: () => void;
   onDelete: () => void;
+  strings: LocaleStrings;
 }) {
   return (
     <Grid.Item
@@ -31,11 +39,11 @@ function BookmarkCard({
       actions={
         <ActionPanel>
           <Action.OpenInBrowser url={bookmark.url} />
-          <Action title="编辑" icon={Icon.Pencil} onAction={onEdit} />
-          <Action title="删除" icon={Icon.Trash} onAction={onDelete} style={Action.Style.Destructive} />
+          <Action title={strings.edit} icon={Icon.Pencil} onAction={onEdit} />
+          <Action title={strings.delete} icon={Icon.Trash} onAction={onDelete} style={Action.Style.Destructive} />
         </ActionPanel>
       }
-    ></Grid.Item>
+    />
   );
 }
 
@@ -45,6 +53,9 @@ export default function BookmarkGrid() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const { push } = useNavigation();
+
+  // 获取本地化字符串
+  const strings = getLocalizedStrings();
 
   useEffect(() => {
     fetchBookmarks();
@@ -64,7 +75,7 @@ export default function BookmarkGrid() {
       setBookmarks(fetchedBookmarks);
       setFilteredBookmarks(fetchedBookmarks);
     } catch (error) {
-      showToast(Toast.Style.Failure, "加载书签失败");
+      showToast(Toast.Style.Failure, strings.failedToLoadBookmarks);
     } finally {
       setIsLoading(false);
     }
@@ -75,9 +86,9 @@ export default function BookmarkGrid() {
       const updatedBookmarks = bookmarks.filter((bookmark) => bookmark.id !== id);
       await saveBookmarks(updatedBookmarks);
       setBookmarks(updatedBookmarks);
-      showToast(Toast.Style.Success, "书签已删除");
+      showToast(Toast.Style.Success, strings.bookmarkDeleted);
     } catch (error) {
-      showToast(Toast.Style.Failure, "删除书签失败");
+      showToast(Toast.Style.Failure, strings.failedToDeleteBookmark);
     }
   }
 
@@ -89,7 +100,7 @@ export default function BookmarkGrid() {
           const updatedBookmarks = bookmarks.map((b) => (b.id === updatedBookmark.id ? updatedBookmark : b));
           await saveBookmarks(updatedBookmarks);
           setBookmarks(updatedBookmarks);
-          showToast(Toast.Style.Success, "书签已更新");
+          showToast(Toast.Style.Success, strings.bookmarkUpdated);
         }}
       />,
     );
@@ -110,14 +121,14 @@ export default function BookmarkGrid() {
       columns={3}
       aspectRatio="3/2"
       fit={Grid.Fit.Fill}
-      navigationTitle="书签"
+      navigationTitle={strings.bookmarks}
       searchBarAccessory={
         <List.Dropdown
-          tooltip="按标签过滤"
+          tooltip={strings.filterByTag}
           storeValue={true}
           onChange={(newValue) => setSelectedTag(newValue === "all" ? null : newValue)}
         >
-          <List.Dropdown.Item title="所有标签" value="all" />
+          <List.Dropdown.Item title={strings.allTags} value="all" />
           {getAllTags().map((tag) => (
             <List.Dropdown.Item key={tag} title={tag} value={tag} />
           ))}
@@ -130,6 +141,7 @@ export default function BookmarkGrid() {
           bookmark={bookmark}
           onEdit={() => handleEdit(bookmark)}
           onDelete={() => handleDelete(bookmark.id)}
+          strings={strings}
         />
       ))}
     </Grid>
