@@ -47,5 +47,30 @@
     "lint": "ray lint",
     "prepublishOnly": "echo \"\\n\\nIt seems like you are trying to publish the Raycast extension to npm.\\n\\nIf you did intend to publish it to npm, remove the \\`prepublishOnly\\` script and rerun \\`npm publish\\` again.\\nIf you wanted to publish it to the Raycast Store instead, use \\`npm run publish\\` instead.\\n\\n\" && exit 1",
     "publish": "npx @raycast/api@latest publish"
-  }
+  },
+  "preferences": [
+    {
+      "name": "model",
+      "type": "textfield",
+      "required": false,
+      "title": "AI 模型",
+      "description": "输入要使用的 AI 模型名称（可选）",
+      "placeholder": "例如：gpt-3.5-turbo"
+    },
+    {
+      "name": "apiKey",
+      "type": "password",
+      "required": false,
+      "title": "API 密钥",
+      "description": "输入您的 API 密钥（可选）"
+    },
+    {
+      "name": "baseURL",
+      "type": "textfield",
+      "required": false,
+      "title": "基础 URL",
+      "description": "输入 API 的基础 URL（可选）",
+      "placeholder": "https://api.openai.com"
+    }
+  ]
 }

@@ -1,11 +1,45 @@
 import OpenAI from "openai";
 import axios from "axios";
 import { load } from "cheerio";
+import { getPreferenceValues } from "@raycast/api";
 
-const openai = new OpenAI({
-  baseURL: "https://api.deepseek.com",
-  apiKey: "sk-27f37c84dbac434cb051a1b1020d9101",
-});
+interface Preferences {
+  model: string;
+  apiKey: string;
+  baseURL: string;
+}
+
+let openai: OpenAI | null = null;
+
+export function initializeOpenAI() {
+  const preferences = getPreferenceValues<Preferences>();
+
+  if (preferences.model && preferences.apiKey && preferences.baseURL) {
+    openai = new OpenAI({
+      baseURL: preferences.baseURL,
+      apiKey: preferences.apiKey,
+    });
+  }
+
+  return { model: preferences.model, preferences };
+}
+
+export async function validateModel(): Promise<boolean> {
+  const { model } = initializeOpenAI();
+  if (!model || !openai) return true;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: model,
+      messages: [{ role: "user", content: "Hello" }],
+    });
+
+    return response.choices.length > 0;
+  } catch (error) {
+    console.error("Model validation failed:", error);
+    return false;
+  }
+}
 
 async function getWebsiteInfo(url: string): Promise<{ title: string; description: string }> {
   try {
@@ -21,10 +55,18 @@ async function getWebsiteInfo(url: string): Promise<{ title: string; description
 }
 
 export async function generateTitleAndTags(url: string): Promise<{ title: string; tags: string[] }> {
+  const { model } = initializeOpenAI();
   const { title, description } = await getWebsiteInfo(url);
 
+  if (!model || !openai) {
+    return {
+      title: title || url,
+      tags: description ? [description] : [],
+    };
+  }
+
   const response = await openai.chat.completions.create({
-    model: "deepseek-chat",
+    model: model,
     messages: [
       {
         role: "system",
@@ -45,6 +87,7 @@ export async function generateTitleAndTags(url: string): Promise<{ title: string
   });
 
   const content = response.choices[0].message.content;
+
   if (content) {
     const { title, tags } = JSON.parse(content.replaceAll("```json", "").replaceAll("```", "").trim());
     return { title, tags };

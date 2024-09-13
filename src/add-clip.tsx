@@ -38,6 +38,7 @@ export default function AddBookmark() {
       setTitle(generatedTitle);
       setTags(generatedTags.join(", "));
     } catch (error) {
+      console.log("error: ", error);
       showToast(Toast.Style.Failure, "生成标题和标签失败");
     } finally {
       setIsLoading(false);
@@ -79,9 +80,6 @@ export default function AddBookmark() {
         value={urlFromClipboard}
         onChange={(newUrl) => {
           setUrlFromClipboard(newUrl);
-          if (isValidUrl(newUrl)) {
-            generateTitleAndTagsForUrl(newUrl);
-          }
         }}
       />
       <Form.TextField id="tags" title="标签" value={tags} onChange={setTags} placeholder="用逗号分隔多个标签" />
