@@ -14,13 +14,15 @@
       "name": "add-clip",
       "title": "Add Clip",
       "description": "Add a new clip",
-      "mode": "view"
+      "mode": "view",
+      "file": "add-clip.tsx"
     },
     {
       "name": "clip-gallery",
       "title": "Clip Gallery",
       "description": "View clips in a grid",
-      "mode": "view"
+      "mode": "view",
+      "file": "clip-gallery.tsx"
     }
   ],
   "dependencies": {

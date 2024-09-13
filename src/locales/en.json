@@ -21,5 +21,9 @@
   "allTags": "All tags",
   "failedToLoadClips": "Failed to load clips",
   "clipDeleted": "Clip deleted",
-  "failedToDeleteClip": "Failed to delete clip"
+  "failedToDeleteClip": "Failed to delete clip",
+  "clipAlreadyExists": "Clip Already Exists",
+  "clipAlreadyExistsMessage": "A clip with this URL already exists. Do you want to update it?",
+  "update": "Update",
+  "cancel": "Cancel"
 }

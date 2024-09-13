@@ -1,18 +1,18 @@
-import { getBookmarks, saveBookmarks } from "./storage";
-import { Bookmark } from "../types";
+import { getClips, saveClips } from "./storage";
+import { Clip } from "../types";
 import fs from "fs";
 import { promisify } from "util";
 
 const writeFile = promisify(fs.writeFile);
 const readFile = promisify(fs.readFile);
 
-export async function exportBookmarks(filePath: string): Promise<void> {
-  const bookmarks = await getBookmarks();
-  await writeFile(filePath, JSON.stringify(bookmarks, null, 2));
+export async function exportClips(filePath: string): Promise<void> {
+  const clips = await getClips();
+  await writeFile(filePath, JSON.stringify(clips, null, 2));
 }
 
-export async function importBookmarks(filePath: string): Promise<void> {
+export async function importClips(filePath: string): Promise<void> {
   const data = await readFile(filePath, "utf-8");
-  const bookmarks = JSON.parse(data) as Bookmark[];
-  await saveBookmarks(bookmarks);
+  const clips = JSON.parse(data) as Clip[];
+  await saveClips(clips);
 }

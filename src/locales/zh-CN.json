@@ -21,5 +21,9 @@
   "allTags": "所有标签",
   "failedToLoadClips": "加载剪藏失败",
   "clipDeleted": "剪藏已删除",
-  "failedToDeleteClip": "删除剪藏失败"
+  "failedToDeleteClip": "删除剪藏失败",
+  "clipAlreadyExists": "剪藏已存在",
+  "clipAlreadyExistsMessage": "具有此 URL 的剪藏已存在。您想要更新它吗？",
+  "update": "更新",
+  "cancel": "取消"
 }

@@ -1,12 +1,12 @@
-import { Form, ActionPanel, Action, showToast, Toast, popToRoot, Clipboard } from "@raycast/api";
+import { Form, ActionPanel, Action, showToast, Toast, popToRoot, Clipboard, confirmAlert } from "@raycast/api";
 import { v4 as uuidv4 } from "uuid";
-import { getBookmarks, saveBookmarks } from "./utils/storage";
-import { Bookmark } from "./types";
+import { getClips, saveClips } from "./utils/storage";
+import { Clip } from "./types";
 import { useState, useEffect } from "react";
-import { generateTitleAndTags } from "./utils/deepseeker";
+import { generateClipTitleAndTags } from "./utils/deepseeker";
 import { getLocalizedStrings } from "./utils/i18n";
 
-export default function AddBookmark() {
+export default function AddClip() {
   const [urlFromClipboard, setUrlFromClipboard] = useState("");
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
@@ -38,7 +38,7 @@ export default function AddBookmark() {
   async function generateTitleAndTagsForUrl(url: string) {
     setIsLoading(true);
     try {
-      const { title: generatedTitle, tags: generatedTags } = await generateTitleAndTags(url);
+      const { title: generatedTitle, tags: generatedTags } = await generateClipTitleAndTags(url);
       setTitle(generatedTitle);
       setTags(generatedTags.join(", "));
     } catch (error) {
@@ -50,21 +50,58 @@ export default function AddBookmark() {
 
   async function handleSubmit(values: { title: string; url: string; tags: string }) {
     try {
-      const bookmarks = await getBookmarks();
-      const newBookmark: Bookmark = {
-        id: uuidv4(),
-        title: values.title,
-        url: values.url,
-        tags: values.tags.split(",").map((tag) => tag.trim()),
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-      await saveBookmarks([...bookmarks, newBookmark]);
-      showToast(Toast.Style.Success, strings.bookmarkAdded);
-      popToRoot();
+      const clips = await getClips();
+      const existingClip = clips.find((clip) => clip.url === values.url);
+
+      if (existingClip) {
+        const options = {
+          title: strings.clipAlreadyExists,
+          message: strings.clipAlreadyExistsMessage,
+          primaryAction: {
+            title: strings.update,
+            onAction: () => updateExistingClip(existingClip, values),
+          },
+          dismissAction: {
+            title: strings.cancel,
+            onAction: () => {},
+          },
+        };
+        await confirmAlert(options);
+      } else {
+        await addNewClip(values);
+      }
     } catch (error) {
-      showToast(Toast.Style.Failure, strings.failedToAddBookmark);
+      showToast(Toast.Style.Failure, strings.failedToAddClip);
     }
+  }
+
+  async function addNewClip(values: { title: string; url: string; tags: string }) {
+    const clips = await getClips();
+    const newClip: Clip = {
+      id: uuidv4(),
+      title: values.title,
+      url: values.url,
+      tags: values.tags.split(",").map((tag) => tag.trim()),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    await saveClips([...clips, newClip]);
+    showToast(Toast.Style.Success, strings.clipAdded);
+    popToRoot();
+  }
+
+  async function updateExistingClip(existingClip: Clip, values: { title: string; url: string; tags: string }) {
+    const clips = await getClips();
+    const updatedClip: Clip = {
+      ...existingClip,
+      title: values.title,
+      tags: values.tags.split(",").map((tag) => tag.trim()),
+      updatedAt: Date.now(),
+    };
+    const updatedClips = clips.map((clip) => (clip.id === existingClip.id ? updatedClip : clip));
+    await saveClips(updatedClips);
+    showToast(Toast.Style.Success, strings.clipUpdated);
+    popToRoot();
   }
 
   return (

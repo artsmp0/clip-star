@@ -1,44 +1,39 @@
 import { Grid, ActionPanel, Action, showToast, Toast, useNavigation, Icon, List } from "@raycast/api";
 import { useState, useEffect } from "react";
-import { getBookmarks, saveBookmarks } from "./utils/storage";
-import { Bookmark } from "./types";
-import { EditBookmarkForm } from "./edit-clip";
+import { getClips, saveClips } from "./utils/storage";
+import { Clip } from "./types";
+import { EditClipForm } from "./edit-clip";
 import { getLocalizedStrings } from "./utils/i18n";
-
-// 导入本地化字符串
-import en from "./locales/en.json";
-
-type LocaleStrings = typeof en;
 
 function getScreenshotUrl(url: string) {
   return `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=false&embed=screenshot.url`;
 }
 
-function BookmarkCard({
-  bookmark,
+function ClipCard({
+  clip,
   onEdit,
   onDelete,
   strings,
 }: {
-  bookmark: Bookmark;
+  clip: Clip;
   onEdit: () => void;
   onDelete: () => void;
-  strings: LocaleStrings;
+  strings: ReturnType<typeof getLocalizedStrings>;
 }) {
   return (
     <Grid.Item
       content={{
         value: {
-          source: getScreenshotUrl(bookmark.url),
+          source: getScreenshotUrl(clip.url),
           fallback: Icon.Globe,
         },
         tooltip: "",
       }}
-      title={bookmark.title}
-      subtitle={bookmark.tags.join(", ")}
+      title={clip.title}
+      subtitle={clip.tags.join(", ")}
       actions={
         <ActionPanel>
-          <Action.OpenInBrowser url={bookmark.url} />
+          <Action.OpenInBrowser url={clip.url} />
           <Action title={strings.edit} icon={Icon.Pencil} onAction={onEdit} />
           <Action title={strings.delete} icon={Icon.Trash} onAction={onDelete} style={Action.Style.Destructive} />
         </ActionPanel>
@@ -47,35 +42,34 @@ function BookmarkCard({
   );
 }
 
-export default function BookmarkGrid() {
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
-  const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([]);
+export default function ClipGallery() {
+  const [clips, setClips] = useState<Clip[]>([]);
+  const [filteredClips, setFilteredClips] = useState<Clip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const { push } = useNavigation();
 
-  // 获取本地化字符串
   const strings = getLocalizedStrings();
 
   useEffect(() => {
-    fetchBookmarks();
+    fetchClips();
   }, []);
 
   useEffect(() => {
     if (selectedTag) {
-      setFilteredBookmarks(bookmarks.filter((bookmark) => bookmark.tags.includes(selectedTag)));
+      setFilteredClips(clips.filter((clip) => clip.tags.includes(selectedTag)));
     } else {
-      setFilteredBookmarks(bookmarks);
+      setFilteredClips(clips);
     }
-  }, [selectedTag, bookmarks]);
+  }, [selectedTag, clips]);
 
-  async function fetchBookmarks() {
+  async function fetchClips() {
     try {
-      const fetchedBookmarks = await getBookmarks();
-      setBookmarks(fetchedBookmarks);
-      setFilteredBookmarks(fetchedBookmarks);
+      const fetchedClips = await getClips();
+      setClips(fetchedClips);
+      setFilteredClips(fetchedClips);
     } catch (error) {
-      showToast(Toast.Style.Failure, strings.failedToLoadBookmarks);
+      showToast(Toast.Style.Failure, strings.failedToLoadClips);
     } finally {
       setIsLoading(false);
     }
@@ -83,24 +77,24 @@ export default function BookmarkGrid() {
 
   async function handleDelete(id: string) {
     try {
-      const updatedBookmarks = bookmarks.filter((bookmark) => bookmark.id !== id);
-      await saveBookmarks(updatedBookmarks);
-      setBookmarks(updatedBookmarks);
-      showToast(Toast.Style.Success, strings.bookmarkDeleted);
+      const updatedClips = clips.filter((clip) => clip.id !== id);
+      await saveClips(updatedClips);
+      setClips(updatedClips);
+      showToast(Toast.Style.Success, strings.clipDeleted);
     } catch (error) {
-      showToast(Toast.Style.Failure, strings.failedToDeleteBookmark);
+      showToast(Toast.Style.Failure, strings.failedToDeleteClip);
     }
   }
 
-  function handleEdit(bookmark: Bookmark) {
+  function handleEdit(clip: Clip) {
     push(
-      <EditBookmarkForm
-        bookmark={bookmark}
-        onEdit={async (updatedBookmark) => {
-          const updatedBookmarks = bookmarks.map((b) => (b.id === updatedBookmark.id ? updatedBookmark : b));
-          await saveBookmarks(updatedBookmarks);
-          setBookmarks(updatedBookmarks);
-          showToast(Toast.Style.Success, strings.bookmarkUpdated);
+      <EditClipForm
+        clip={clip}
+        onEdit={async (updatedClip) => {
+          const updatedClips = clips.map((c) => (c.id === updatedClip.id ? updatedClip : c));
+          await saveClips(updatedClips);
+          setClips(updatedClips);
+          showToast(Toast.Style.Success, strings.clipUpdated);
         }}
       />,
     );
@@ -108,8 +102,8 @@ export default function BookmarkGrid() {
 
   function getAllTags() {
     const tagSet = new Set<string>();
-    bookmarks.forEach((bookmark) => {
-      bookmark.tags.forEach((tag) => tagSet.add(tag));
+    clips.forEach((clip) => {
+      clip.tags.forEach((tag) => tagSet.add(tag));
     });
     return Array.from(tagSet);
   }
@@ -121,7 +115,7 @@ export default function BookmarkGrid() {
       columns={3}
       aspectRatio="3/2"
       fit={Grid.Fit.Fill}
-      navigationTitle={strings.bookmarks}
+      navigationTitle={strings.clips}
       searchBarAccessory={
         <List.Dropdown
           tooltip={strings.filterByTag}
@@ -135,12 +129,12 @@ export default function BookmarkGrid() {
         </List.Dropdown>
       }
     >
-      {filteredBookmarks.map((bookmark) => (
-        <BookmarkCard
-          key={bookmark.id}
-          bookmark={bookmark}
-          onEdit={() => handleEdit(bookmark)}
-          onDelete={() => handleDelete(bookmark.id)}
+      {filteredClips.map((clip) => (
+        <ClipCard
+          key={clip.id}
+          clip={clip}
+          onEdit={() => handleEdit(clip)}
+          onDelete={() => handleDelete(clip.id)}
           strings={strings}
         />
       ))}

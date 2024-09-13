@@ -1,41 +1,35 @@
 import { Form, ActionPanel, Action, showToast, Toast, useNavigation } from "@raycast/api";
 import { useState } from "react";
-import { Bookmark } from "./types";
-import { updateBookmark } from "./utils/storage";
+import { Clip } from "./types";
+import { updateClip } from "./utils/storage";
 import { getLocalizedStrings } from "./utils/i18n";
 
-export function EditBookmarkForm({
-  bookmark,
-  onEdit,
-}: {
-  bookmark: Bookmark;
-  onEdit: (updatedBookmark: Bookmark) => void;
-}) {
-  const [title, setTitle] = useState(bookmark.title);
-  const [url, setUrl] = useState(bookmark.url);
-  const [tags, setTags] = useState(bookmark.tags.join(", "));
+export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedClip: Clip) => void }) {
+  const [title, setTitle] = useState(clip.title);
+  const [url, setUrl] = useState(clip.url);
+  const [tags, setTags] = useState(clip.tags.join(", "));
   const { pop } = useNavigation();
 
-  // 获取本地化字符串
   const strings = getLocalizedStrings();
 
   async function handleSubmit() {
     try {
-      const updatedBookmark: Bookmark = {
-        ...bookmark,
+      const updatedClip: Clip = {
+        ...clip,
         title,
         url,
         tags: tags
           .split(",")
           .map((tag) => tag.trim())
           .filter((tag) => tag !== ""),
+        updatedAt: Date.now(),
       };
-      await updateBookmark(updatedBookmark);
-      showToast(Toast.Style.Success, strings.bookmarkUpdated);
-      onEdit(updatedBookmark);
+      await updateClip(updatedClip);
+      showToast(Toast.Style.Success, strings.clipUpdated);
+      onEdit(updatedClip);
       pop();
     } catch (error) {
-      showToast(Toast.Style.Failure, strings.failedToUpdateBookmark);
+      showToast(Toast.Style.Failure, strings.failedToUpdateClip);
     }
   }
 
@@ -43,7 +37,7 @@ export function EditBookmarkForm({
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm title={strings.updateBookmark} onSubmit={handleSubmit} />
+          <Action.SubmitForm title={strings.updateClip} onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >
@@ -60,14 +54,14 @@ export function EditBookmarkForm({
   );
 }
 
-export function editBookmark(bookmark: Bookmark): Promise<Bookmark | null> {
+export function editClip(clip: Clip): Promise<Clip | null> {
   return new Promise((resolve) => {
     const strings = getLocalizedStrings();
-    showToast(Toast.Style.Animated, strings.editingBookmark);
-    <EditBookmarkForm
-      bookmark={bookmark}
-      onEdit={(updatedBookmark) => {
-        resolve(updatedBookmark);
+    showToast(Toast.Style.Animated, strings.editingClip);
+    <EditClipForm
+      clip={clip}
+      onEdit={(updatedClip) => {
+        resolve(updatedClip);
       }}
     />;
   });

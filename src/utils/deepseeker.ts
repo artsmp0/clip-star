@@ -54,7 +54,7 @@ async function getWebsiteInfo(url: string): Promise<{ title: string; description
   }
 }
 
-export async function generateTitleAndTags(url: string): Promise<{ title: string; tags: string[] }> {
+export async function generateClipTitleAndTags(url: string): Promise<{ title: string; tags: string[] }> {
   const { model } = initializeOpenAI();
   const { title, description } = await getWebsiteInfo(url);
 
