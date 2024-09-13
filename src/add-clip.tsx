@@ -104,6 +104,7 @@ export default function AddClip() {
 
   return (
     <Form
+      navigationTitle={strings.addClip}
       actions={
         <ActionPanel>
           <Action.SubmitForm onSubmit={handleSubmit} />

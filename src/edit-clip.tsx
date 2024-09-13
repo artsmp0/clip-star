@@ -35,6 +35,7 @@ export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedCli
 
   return (
     <Form
+      navigationTitle={strings.edit}
       actions={
         <ActionPanel>
           <Action.SubmitForm title={strings.updateClip} onSubmit={handleSubmit} />
