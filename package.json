@@ -75,6 +75,22 @@
       "placeholder": "https://api.openai.com"
     },
     {
+      "name": "webhook",
+      "type": "textfield",
+      "required": false,
+      "title": "Webhook",
+      "description": "输入 Webhook 地址（可选）",
+      "placeholder": "https://example.com/webhook"
+    },
+    {
+      "name": "webhook_get",
+      "type": "textfield",
+      "required": false,
+      "title": "Webhook_Get",
+      "description": "输入 获取收藏夹 地址（可选）",
+      "placeholder": "https://example.com/webhook"
+    },
+    {
       "name": "language",
       "type": "dropdown",
       "required": false,

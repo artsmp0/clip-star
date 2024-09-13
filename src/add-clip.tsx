@@ -11,7 +11,7 @@ import {
   confirmAlert,
 } from "@raycast/api";
 import { v4 as uuidv4 } from "uuid";
-import { getClips, saveClips } from "./utils/storage";
+import { addClip, getClips } from "./utils/storage";
 import { Clip } from "./types";
 import { useState, useEffect } from "react";
 import { generateClipTitleAndTags } from "./utils/deepseeker";
@@ -83,21 +83,40 @@ export default function AddClip() {
         await addNewClip(values);
       }
     } catch (error) {
+      console.log("error: ", error);
       showToast(Toast.Style.Failure, strings.failedToAddClip);
     }
   }
 
   async function addNewClip(values: { title: string; url: string; tags: string }) {
-    const clips = await getClips();
     const newClip: Clip = {
       id: uuidv4(),
       title: values.title,
       url: values.url,
       tags: values.tags.split(",").map((tag) => tag.trim()),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: new Date()
+        .toLocaleString(undefined, {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+        .replace(",", ""),
+      updatedAt: new Date()
+        .toLocaleString(undefined, {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+        .replace(",", ""),
+      coverImage: `https://api.microlink.io/?url=${encodeURIComponent(values.url)}&screenshot=true&meta=false&embed=screenshot.url`,
     };
-    await saveClips([...clips, newClip]);
+    await addClip(newClip);
     showToast(Toast.Style.Success, strings.clipAdded);
     popToRoot();
   }

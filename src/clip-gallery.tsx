@@ -1,6 +1,6 @@
 import { Grid, ActionPanel, Action, showToast, Toast, useNavigation, Icon, List } from "@raycast/api";
 import { useState, useEffect } from "react";
-import { getClips, saveClips } from "./utils/storage";
+import { deleteClip, getClips, updateClip } from "./utils/storage";
 import { Clip } from "./types";
 import { EditClipForm } from "./edit-clip";
 import { getLocalizedStrings } from "./utils/i18n";
@@ -22,10 +22,11 @@ function ClipCard({
 }) {
   return (
     <Grid.Item
+      key={clip.id}
       content={{
         value: {
-          source: getScreenshotUrl(clip.url),
-          fallback: Icon.Globe,
+          source: clip.coverImage ?? getScreenshotUrl(clip.url),
+          fallback: Icon.EmojiSad,
         },
         tooltip: "",
       }}
@@ -119,8 +120,7 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
 
   async function handleDelete(id: string) {
     try {
-      const updatedClips = clips.filter((clip) => clip.id !== id);
-      await saveClips(updatedClips);
+      const updatedClips = await deleteClip(id);
       setClips(updatedClips);
       showToast(Toast.Style.Success, strings.clipDeleted);
     } catch (error) {
@@ -133,8 +133,7 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
       <EditClipForm
         clip={clip}
         onEdit={async (updatedClip) => {
-          const updatedClips = clips.map((c) => (c.id === updatedClip.id ? updatedClip : c));
-          await saveClips(updatedClips);
+          const updatedClips = await updateClip(updatedClip);
           setClips(updatedClips);
           showToast(Toast.Style.Success, strings.clipUpdated);
         }}
@@ -153,7 +152,6 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
   return (
     <Grid
       isLoading={isLoading}
-      inset={Grid.Inset.Zero}
       filtering={false}
       onSearchTextChange={setSearchText}
       columns={3}

@@ -22,7 +22,16 @@ export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedCli
           .split(",")
           .map((tag) => tag.trim())
           .filter((tag) => tag !== ""),
-        updatedAt: Date.now(),
+        updatedAt: new Date()
+          .toLocaleString(undefined, {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })
+          .replace(",", ""),
       };
       await updateClip(updatedClip);
       showToast(Toast.Style.Success, strings.clipUpdated);
