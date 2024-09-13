@@ -26,5 +26,6 @@
   "clipAlreadyExistsMessage": "具有此 URL 的剪藏已存在。您想要更新它吗？",
   "show": "查看",
   "cancel": "取消",
-  "viewInGallery": "在剪藏列表中查看"
+  "viewInGallery": "在剪藏列表中查看",
+  "copyAllClips": "导出剪藏数据"
 }

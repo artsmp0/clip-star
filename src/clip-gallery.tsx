@@ -10,11 +10,13 @@ function getScreenshotUrl(url: string) {
 }
 
 function ClipCard({
+  clips,
   clip,
   onEdit,
   onDelete,
   strings,
 }: {
+  clips: Clip[];
   clip: Clip;
   onEdit: () => void;
   onDelete: () => void;
@@ -35,8 +37,20 @@ function ClipCard({
       actions={
         <ActionPanel>
           <Action.OpenInBrowser url={clip.url} />
-          <Action title={strings.edit} icon={Icon.Pencil} onAction={onEdit} />
-          <Action title={strings.delete} icon={Icon.Trash} onAction={onDelete} style={Action.Style.Destructive} />
+          <Action
+            title={strings.edit}
+            icon={Icon.Pencil}
+            onAction={onEdit}
+            shortcut={{ modifiers: ["cmd"], key: "e" }}
+          />
+          <Action
+            title={strings.delete}
+            icon={Icon.Trash}
+            onAction={onDelete}
+            style={Action.Style.Destructive}
+            shortcut={{ modifiers: ["cmd"], key: "d" }}
+          />
+          <Action.CopyToClipboard content={JSON.stringify(clips)} title={strings.copyAllClips} />
         </ActionPanel>
       }
     />
@@ -121,11 +135,14 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
 
   async function handleDelete(id: string) {
     try {
-      const updatedClips = await deleteClip(id);
-      setClips(updatedClips);
+      setIsLoading(true);
+      await deleteClip(id);
+      setFilteredClips((prevClips) => prevClips.filter((clip) => clip.id !== id));
       showToast(Toast.Style.Success, strings.clipDeleted);
     } catch (error) {
       showToast(Toast.Style.Failure, strings.failedToDeleteClip);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -135,8 +152,8 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
         clip={clip}
         onEdit={async (updatedClip) => {
           setIsLoading(true);
-          const updatedClips = await updateClip(updatedClip);
-          setClips(updatedClips);
+          await updateClip(updatedClip);
+          setFilteredClips((prevClips) => prevClips.map((clip) => (clip.id === updatedClip.id ? updatedClip : clip)));
           showToast(Toast.Style.Success, strings.clipUpdated);
           setIsLoading(false);
         }}
@@ -179,6 +196,7 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
     >
       {filteredClips.map((clip) => (
         <ClipCard
+          clips={clips}
           key={clip.id}
           clip={clip}
           onEdit={() => handleEdit(clip)}
