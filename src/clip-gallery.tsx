@@ -84,7 +84,7 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
   const [clips, setClips] = useState<Clip[]>([]);
   const [filteredClips, setFilteredClips] = useState<Clip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string>("all");
   const [searchText, setSearchText] = useState(initialFilterUrl || "");
   const { push } = useNavigation();
 
@@ -95,13 +95,14 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
   }, []);
 
   useEffect(() => {
-    if (selectedTag) {
-      setFilteredClips(clips.filter((clip) => clip.tags.includes(selectedTag)));
-    } else if (searchText) {
-      setFilteredClips(clips.filter((clip) => customSearch(clip, searchText)));
-    } else {
-      setFilteredClips(clips);
+    let filtered = clips;
+    if (selectedTag && selectedTag !== "all") {
+      filtered = filtered.filter((clip) => clip.tags.includes(selectedTag));
     }
+    if (searchText) {
+      filtered = filtered.filter((clip) => customSearch(clip, searchText));
+    }
+    setFilteredClips(filtered);
   }, [selectedTag, searchText, clips]);
 
   async function fetchClips() {
@@ -163,10 +164,9 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
       searchBarAccessory={
         <List.Dropdown
           tooltip={strings.filterByTag}
-          storeValue={true}
+          value={selectedTag}
           onChange={(newValue) => {
-            setSelectedTag(newValue === "all" ? null : newValue);
-            setSearchText("");
+            setSelectedTag(newValue);
           }}
         >
           <List.Dropdown.Item title={strings.allTags} value="all" />
