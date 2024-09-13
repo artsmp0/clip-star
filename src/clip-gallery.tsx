@@ -108,6 +108,7 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
 
   async function fetchClips() {
     try {
+      setIsLoading(true);
       const fetchedClips = await getClips();
       setClips(fetchedClips);
       setFilteredClips(fetchedClips);
@@ -133,9 +134,11 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
       <EditClipForm
         clip={clip}
         onEdit={async (updatedClip) => {
+          setIsLoading(true);
           const updatedClips = await updateClip(updatedClip);
           setClips(updatedClips);
           showToast(Toast.Style.Success, strings.clipUpdated);
+          setIsLoading(false);
         }}
       />,
     );

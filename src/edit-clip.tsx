@@ -8,12 +8,14 @@ export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedCli
   const [title, setTitle] = useState(clip.title);
   const [url, setUrl] = useState(clip.url);
   const [tags, setTags] = useState(clip.tags.join(", "));
+  const [isLoading, setIsLoading] = useState(false);
   const { pop } = useNavigation();
 
   const strings = getLocalizedStrings();
 
   async function handleSubmit() {
     try {
+      setIsLoading(true);
       const updatedClip: Clip = {
         ...clip,
         title,
@@ -22,16 +24,7 @@ export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedCli
           .split(",")
           .map((tag) => tag.trim())
           .filter((tag) => tag !== ""),
-        updatedAt: new Date()
-          .toLocaleString(undefined, {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          })
-          .replace(",", ""),
+        updatedAt: new Date().toISOString(),
       };
       await updateClip(updatedClip);
       showToast(Toast.Style.Success, strings.clipUpdated);
@@ -39,12 +32,15 @@ export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedCli
       pop();
     } catch (error) {
       showToast(Toast.Style.Failure, strings.failedToUpdateClip);
+    } finally {
+      setIsLoading(false);
     }
   }
 
   return (
     <Form
       navigationTitle={strings.edit}
+      isLoading={isLoading}
       actions={
         <ActionPanel>
           <Action.SubmitForm title={strings.updateClip} onSubmit={handleSubmit} />

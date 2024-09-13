@@ -49,20 +49,18 @@ export default function AddClip() {
   }
 
   async function generateTitleAndTagsForUrl(url: string) {
-    setIsLoading(true);
     try {
       const { title: generatedTitle, tags: generatedTags } = await generateClipTitleAndTags(url);
       setTitle(generatedTitle);
       setTags(generatedTags.join(", "));
     } catch (error) {
       showToast(Toast.Style.Failure, strings.generateTitleAndTagsFailed);
-    } finally {
-      setIsLoading(false);
     }
   }
 
   async function handleSubmit(values: { title: string; url: string; tags: string }) {
     try {
+      setIsLoading(true);
       const clips = await getClips();
       const existingClip = clips.find((clip) => clip.url === values.url);
 
@@ -85,6 +83,8 @@ export default function AddClip() {
     } catch (error) {
       console.log("error: ", error);
       showToast(Toast.Style.Failure, strings.failedToAddClip);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -94,26 +94,8 @@ export default function AddClip() {
       title: values.title,
       url: values.url,
       tags: values.tags.split(",").map((tag) => tag.trim()),
-      createdAt: new Date()
-        .toLocaleString(undefined, {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        })
-        .replace(",", ""),
-      updatedAt: new Date()
-        .toLocaleString(undefined, {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        })
-        .replace(",", ""),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       coverImage: `https://api.microlink.io/?url=${encodeURIComponent(values.url)}&screenshot=true&meta=false&embed=screenshot.url`,
     };
     await addClip(newClip);

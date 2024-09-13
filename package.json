@@ -26,6 +26,7 @@
     }
   ],
   "dependencies": {
+    "@notionhq/client": "^2.2.5",
     "@raycast/api": "^1.82.5",
     "@raycast/utils": "^1.16.3",
     "@types/uuid": "^10.0.0",
@@ -75,20 +76,18 @@
       "placeholder": "https://api.openai.com"
     },
     {
-      "name": "webhook",
+      "name": "notionToken",
       "type": "textfield",
       "required": false,
-      "title": "Webhook",
-      "description": "输入 Webhook 地址（可选）",
-      "placeholder": "https://example.com/webhook"
+      "title": "Notion Token",
+      "description": "输入 Notion Token（可选）"
     },
     {
-      "name": "webhook_get",
+      "name": "databaseId",
       "type": "textfield",
       "required": false,
-      "title": "Webhook_Get",
-      "description": "输入 获取收藏夹 地址（可选）",
-      "placeholder": "https://example.com/webhook"
+      "title": "Database ID",
+      "description": "输入 Database ID（可选）"
     },
     {
       "name": "language",
