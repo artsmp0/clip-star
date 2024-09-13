@@ -3,7 +3,7 @@
   "name": "clip-star",
   "title": "ClipStar",
   "description": "clip all in one, preview url in raycast",
-  "icon": "extension-icon.png",
+  "icon": "extension-icon.svg",
   "author": "artsmp",
   "categories": [
     "Applications"
@@ -13,13 +13,13 @@
     {
       "name": "add-clip",
       "title": "Add Clip",
-      "description": "Add a new bookmark",
+      "description": "Add a new clip",
       "mode": "view"
     },
     {
-      "name": "bookmark-grid",
-      "title": "Clips",
-      "description": "View bookmarks in a grid",
+      "name": "clip-gallery",
+      "title": "Clip Gallery",
+      "description": "View clips in a grid",
       "mode": "view"
     }
   ],
