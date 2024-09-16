@@ -27,5 +27,6 @@
   "show": "查看",
   "cancel": "取消",
   "viewInGallery": "在剪藏列表中查看",
-  "copyAllClips": "导出剪藏数据"
+  "copyAllClips": "导出剪藏数据",
+  "generateTag": "文档, 软件, 视频, 文章, 教程, 工具, 博客, 播客, 课程, 电子书, 论坛, 数据库, 框架, 库, 游戏, 等等。"
 }

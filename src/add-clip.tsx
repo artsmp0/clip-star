@@ -50,11 +50,14 @@ export default function AddClip() {
 
   async function generateTitleAndTagsForUrl(url: string) {
     try {
+      setIsLoading(true);
       const { title: generatedTitle, tags: generatedTags } = await generateClipTitleAndTags(url);
       setTitle(generatedTitle);
       setTags(generatedTags.join(", "));
     } catch (error) {
       showToast(Toast.Style.Failure, strings.generateTitleAndTagsFailed);
+    } finally {
+      setIsLoading(false);
     }
   }
 

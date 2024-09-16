@@ -27,5 +27,6 @@
   "show": "Show",
   "cancel": "Cancel",
   "viewInGallery": "View in Gallery",
-  "copyAllClips": "Copy All Clips"
+  "copyAllClips": "Copy All Clips",
+  "generateTag": "documentation, software, video, article, tutorial, tool, blog, podcast, course, ebook, research paper, forum, database, API, framework, library, app, game, etc."
 }

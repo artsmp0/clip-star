@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import axios from "axios";
 import { load } from "cheerio";
 import { getPreferenceValues } from "@raycast/api";
+import { getLocalizedStrings } from "./i18n";
 
 interface Preferences {
   model: string;
@@ -44,7 +45,7 @@ export async function validateModel(): Promise<boolean> {
 async function getWebsiteInfo(url: string): Promise<{ title: string; description: string }> {
   try {
     const response = await axios.get(url);
-    const $ = load(response.data);
+    const $ = load(response.data, { xml: true });
     const title = $("title").text().trim() || "";
     const description = $('meta[name="description"]').attr("content") || "";
     return { title, description };
@@ -57,7 +58,7 @@ async function getWebsiteInfo(url: string): Promise<{ title: string; description
 export async function generateClipTitleAndTags(url: string): Promise<{ title: string; tags: string[] }> {
   const { model } = initializeOpenAI();
   const { title, description } = await getWebsiteInfo(url);
-
+  const { generateTag } = getLocalizedStrings();
   if (!model || !openai) {
     return {
       title: title || url,
@@ -71,14 +72,14 @@ export async function generateClipTitleAndTags(url: string): Promise<{ title: st
       {
         role: "system",
         content:
-          "You are an AI assistant specialized in generating concise titles and relevant resource type tags for URLs. Focus on categorizing the content type and format. If no content is available, summarize the URL itself. Your native language is Chinese, respond in Chinese.",
+          "You are an AI assistant specialized in generating concise titles and relevant resource type tags for URLs. Focus on categorizing the content type and format. If no content is available, summarize the URL itself.",
       },
       {
         role: "user",
         content: `Generate a concise title and 2-5 relevant tags for this URL: ${url}
           Website title: ${title}
           Website description: ${description}
-          Tags should focus on resource types such as: documentation, software, video, article, tutorial, tool, blog, podcast, course, ebook, research paper, forum, database, API, framework, library, app, game, etc.
+          Tags should focus on resource types such as: ${generateTag}
           If the URL is a Twitter/X post, extract the main topic or theme of the tweet. Use 'tweet' as one of the tags and focus on the content type (e.g., news, opinion, announcement, etc.).
           If no content is available, summarize the URL itself.
           Respond in JSON format with 'title' and 'tags' keys.`,
