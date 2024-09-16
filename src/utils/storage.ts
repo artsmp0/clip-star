@@ -8,27 +8,28 @@ const STORAGE_KEY = "clips";
 interface Preferences {
   notionToken?: string;
   databaseId?: string;
+  tableKey?: string;
 }
 
-const { notionToken, databaseId } = getPreferenceValues<Preferences>();
+const { notionToken, databaseId, tableKey } = getPreferenceValues<Preferences>();
+const [title, url, tag, createdAt, updatedAt] = tableKey!.split(",");
 
 const notion = notionToken ? new Client({ auth: notionToken }) : null;
 
 async function getClipsFromNotion(): Promise<Clip[]> {
   if (!notion || !databaseId) return [];
-
   try {
     const response: any = await notion.databases.query({
       database_id: databaseId,
-      sorts: [{ property: "创建时间", direction: "descending" }],
+      sorts: [{ property: createdAt, direction: "descending" }],
     });
     return response.results.map((page: any) => ({
       id: page.id,
-      title: page.properties["标题"].title[0]?.plain_text || "",
-      url: page.properties["链接地址"].url || "",
-      tags: page.properties["标签"].multi_select.map((tag: any) => tag.name),
-      createdAt: page.properties["创建时间"].date.start,
-      updatedAt: page.properties["更新时间"].date.start,
+      title: page.properties[title].title[0]?.plain_text || "",
+      url: page.properties[url].url || "",
+      tags: page.properties[tag].multi_select.map((tag: any) => tag.name),
+      createdAt: page.properties[createdAt].date.start,
+      updatedAt: page.properties[updatedAt].date.start,
       coverImage: page.cover.external.url,
     }));
   } catch (error) {
@@ -44,11 +45,11 @@ async function saveClipToNotion(clip: Clip): Promise<void> {
     await notion.pages.create({
       parent: { database_id: databaseId },
       properties: {
-        标题: { title: [{ text: { content: clip.title } }] },
-        链接地址: { url: clip.url },
-        标签: { multi_select: clip.tags.map((tag) => ({ name: tag })) },
-        创建时间: { date: { start: clip.createdAt } },
-        更新时间: { date: { start: clip.updatedAt } },
+        [title]: { title: [{ text: { content: clip.title } }] },
+        [url]: { url: clip.url },
+        [tag]: { multi_select: clip.tags.map((tag) => ({ name: tag })) },
+        [createdAt]: { date: { start: clip.createdAt } },
+        [updatedAt]: { date: { start: clip.updatedAt } },
       },
       cover: { external: { url: clip.coverImage! } },
     });
@@ -82,10 +83,10 @@ export async function updateClip(updatedClip: Clip) {
       await notion?.pages.update({
         page_id: updatedClip.id,
         properties: {
-          标题: { title: [{ text: { content: updatedClip.title } }] },
-          链接地址: { url: updatedClip.url },
-          标签: { multi_select: updatedClip.tags.map((tag) => ({ name: tag })) },
-          更新时间: { date: { start: updatedClip.updatedAt } },
+          [title]: { title: [{ text: { content: updatedClip.title } }] },
+          [url]: { url: updatedClip.url },
+          [tag]: { multi_select: updatedClip.tags.map((tag) => ({ name: tag })) },
+          [updatedAt]: { date: { start: updatedClip.updatedAt } },
         },
       });
     } catch (error) {
