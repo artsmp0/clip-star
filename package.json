@@ -2,12 +2,14 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "clip-star",
   "title": "ClipStar",
-  "description": "clip all in one, preview url in raycast",
+  "description": "Clip all in one. Auto generate title, preview image, tags. Can connect to notion for synchronization.",
   "icon": "extension-icon.svg",
-  "author": "artsmp",
   "categories": [
+    "Web",
+    "Productivity",
     "Applications"
   ],
+  "author": "artsmp",
   "license": "MIT",
   "commands": [
     {
