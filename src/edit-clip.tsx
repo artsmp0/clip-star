@@ -2,7 +2,6 @@ import { Form, ActionPanel, Action, showToast, Toast, useNavigation } from "@ray
 import { useState } from "react";
 import { Clip } from "./types";
 import { updateClip } from "./utils/storage";
-import { getLocalizedStrings } from "./utils/i18n";
 
 export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedClip: Clip) => void }) {
   const [title, setTitle] = useState(clip.title);
@@ -10,8 +9,6 @@ export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedCli
   const [tags, setTags] = useState(clip.tags.join(", "));
   const [isLoading, setIsLoading] = useState(false);
   const { pop } = useNavigation();
-
-  const strings = getLocalizedStrings();
 
   async function handleSubmit() {
     try {
@@ -27,11 +24,11 @@ export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedCli
         updatedAt: new Date().toISOString(),
       };
       await updateClip(updatedClip);
-      showToast(Toast.Style.Success, strings.clipUpdated);
+      showToast(Toast.Style.Success, "Clip updated");
       onEdit(updatedClip);
       pop();
     } catch (error) {
-      showToast(Toast.Style.Failure, strings.failedToUpdateClip);
+      showToast(Toast.Style.Failure, "Failed to update clip");
     } finally {
       setIsLoading(false);
     }
@@ -39,22 +36,22 @@ export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedCli
 
   return (
     <Form
-      navigationTitle={strings.edit}
+      navigationTitle="Edit"
       isLoading={isLoading}
       actions={
         <ActionPanel>
-          <Action.SubmitForm title={strings.updateClip} onSubmit={handleSubmit} />
+          <Action.SubmitForm title="Update Clip" onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >
-      <Form.TextField id="title" title={strings.title} value={title} onChange={setTitle} />
-      <Form.TextField id="url" title={strings.url} value={url} onChange={setUrl} />
+      <Form.TextField id="title" title="Title" value={title} onChange={setTitle} />
+      <Form.TextField id="url" title="URL" value={url} onChange={setUrl} />
       <Form.TextField
         id="tags"
-        title={strings.tags}
+        title="Tags"
         value={tags}
         onChange={setTags}
-        placeholder={strings.separateTagsWithComma}
+        placeholder="Separate multiple tags with commas"
       />
     </Form>
   );
@@ -62,8 +59,7 @@ export function EditClipForm({ clip, onEdit }: { clip: Clip; onEdit: (updatedCli
 
 export function editClip(clip: Clip): Promise<Clip | null> {
   return new Promise((resolve) => {
-    const strings = getLocalizedStrings();
-    showToast(Toast.Style.Animated, strings.editingClip);
+    showToast(Toast.Style.Animated, "Editing clip...");
     <EditClipForm
       clip={clip}
       onEdit={(updatedClip) => {

@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { deleteClip, getClips, updateClip } from "./utils/storage";
 import { Clip } from "./types";
 import { EditClipForm } from "./edit-clip";
-import { getLocalizedStrings } from "./utils/i18n";
 
 function getScreenshotUrl(url: string) {
   return `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=false&embed=screenshot.url`;
@@ -14,13 +13,11 @@ function ClipCard({
   clip,
   onEdit,
   onDelete,
-  strings,
 }: {
   clips: Clip[];
   clip: Clip;
   onEdit: () => void;
   onDelete: () => void;
-  strings: ReturnType<typeof getLocalizedStrings>;
 }) {
   return (
     <Grid.Item
@@ -37,20 +34,15 @@ function ClipCard({
       actions={
         <ActionPanel>
           <Action.OpenInBrowser url={clip.url} />
+          <Action title="Edit" icon={Icon.Pencil} onAction={onEdit} shortcut={{ modifiers: ["cmd"], key: "e" }} />
           <Action
-            title={strings.edit}
-            icon={Icon.Pencil}
-            onAction={onEdit}
-            shortcut={{ modifiers: ["cmd"], key: "e" }}
-          />
-          <Action
-            title={strings.delete}
+            title="Delete"
             icon={Icon.Trash}
             onAction={onDelete}
             style={Action.Style.Destructive}
             shortcut={{ modifiers: ["cmd"], key: "d" }}
           />
-          <Action.CopyToClipboard content={JSON.stringify(clips)} title={strings.copyAllClips} />
+          <Action.CopyToClipboard content={JSON.stringify(clips)} title="Copy All Clips" />
         </ActionPanel>
       }
     />
@@ -103,8 +95,6 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
   const [searchText, setSearchText] = useState(initialFilterUrl || "");
   const { push } = useNavigation();
 
-  const strings = getLocalizedStrings();
-
   useEffect(() => {
     fetchClips();
   }, []);
@@ -127,7 +117,7 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
       setClips(fetchedClips);
       setFilteredClips(fetchedClips);
     } catch (error) {
-      showToast(Toast.Style.Failure, strings.failedToLoadClips);
+      showToast(Toast.Style.Failure, "Failed to load clips");
     } finally {
       setIsLoading(false);
     }
@@ -138,9 +128,9 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
       setIsLoading(true);
       await deleteClip(id);
       setFilteredClips((prevClips) => prevClips.filter((clip) => clip.id !== id));
-      showToast(Toast.Style.Success, strings.clipDeleted);
+      showToast(Toast.Style.Success, "Clip deleted");
     } catch (error) {
-      showToast(Toast.Style.Failure, strings.failedToDeleteClip);
+      showToast(Toast.Style.Failure, "Failed to delete clip");
     } finally {
       setIsLoading(false);
     }
@@ -154,7 +144,7 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
           setIsLoading(true);
           await updateClip(updatedClip);
           setFilteredClips((prevClips) => prevClips.map((clip) => (clip.id === updatedClip.id ? updatedClip : clip)));
-          showToast(Toast.Style.Success, strings.clipUpdated);
+          showToast(Toast.Style.Success, "Clip updated");
           setIsLoading(false);
         }}
       />,
@@ -177,17 +167,17 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
       columns={3}
       aspectRatio="3/2"
       fit={Grid.Fit.Fill}
-      navigationTitle={strings.clips}
+      navigationTitle="Clips"
       searchText={searchText}
       searchBarAccessory={
         <List.Dropdown
-          tooltip={strings.filterByTag}
+          tooltip="Filter by tag"
           value={selectedTag}
           onChange={(newValue) => {
             setSelectedTag(newValue);
           }}
         >
-          <List.Dropdown.Item title={strings.allTags} value="all" />
+          <List.Dropdown.Item title="All tags" value="all" />
           {getAllTags().map((tag) => (
             <List.Dropdown.Item key={tag} title={tag} value={tag} />
           ))}
@@ -201,7 +191,6 @@ export default function ClipGallery({ initialFilterUrl }: { initialFilterUrl?: s
           clip={clip}
           onEdit={() => handleEdit(clip)}
           onDelete={() => handleDelete(clip.id)}
-          strings={strings}
         />
       ))}
     </Grid>

@@ -15,7 +15,6 @@ import { addClip, getClips } from "./utils/storage";
 import { Clip } from "./types";
 import { useState, useEffect } from "react";
 import { generateClipTitleAndTags } from "./utils/deepseeker";
-import { getLocalizedStrings } from "./utils/i18n";
 import ClipGallery from "./clip-gallery";
 
 export default function AddClip() {
@@ -24,9 +23,6 @@ export default function AddClip() {
   const [tags, setTags] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { push } = useNavigation();
-
-  // 获取本地化字符串
-  const strings = getLocalizedStrings();
 
   useEffect(() => {
     async function getClipboardContent() {
@@ -55,7 +51,7 @@ export default function AddClip() {
       setTitle(generatedTitle);
       setTags(generatedTags.join(", "));
     } catch (error) {
-      showToast(Toast.Style.Failure, strings.generateTitleAndTagsFailed);
+      showToast(Toast.Style.Failure, "Failed to generate title and tags, is the model out of credit?");
     } finally {
       setIsLoading(false);
     }
@@ -69,14 +65,14 @@ export default function AddClip() {
 
       if (existingClip) {
         const options: Alert.Options = {
-          title: strings.clipAlreadyExists,
-          message: strings.clipAlreadyExistsMessage,
+          title: "Clip Already Exists",
+          message: "A clip with this URL already exists. Do you want to update it?",
           primaryAction: {
-            title: strings.show,
+            title: "Show",
             onAction: () => push(<ClipGallery initialFilterUrl={values.url} />),
           },
           dismissAction: {
-            title: strings.cancel,
+            title: "Cancel",
           },
         };
         await confirmAlert(options);
@@ -85,7 +81,7 @@ export default function AddClip() {
       }
     } catch (error) {
       console.log("error: ", error);
-      showToast(Toast.Style.Failure, strings.failedToAddClip);
+      showToast(Toast.Style.Failure, "Failed to add clip");
     } finally {
       setIsLoading(false);
     }
@@ -102,13 +98,13 @@ export default function AddClip() {
       coverImage: `https://api.microlink.io/?url=${encodeURIComponent(values.url)}&screenshot=true&meta=false&embed=screenshot.url`,
     };
     await addClip(newClip);
-    showToast(Toast.Style.Success, strings.clipAdded);
+    showToast(Toast.Style.Success, "Clip added");
     popToRoot();
   }
 
   return (
     <Form
-      navigationTitle={strings.addClip}
+      navigationTitle="Add Clip"
       actions={
         <ActionPanel>
           <Action.SubmitForm onSubmit={handleSubmit} />
@@ -116,10 +112,10 @@ export default function AddClip() {
       }
       isLoading={isLoading}
     >
-      <Form.TextField id="title" title={strings.title} value={title} onChange={setTitle} />
+      <Form.TextField id="title" title="Title" value={title} onChange={setTitle} />
       <Form.TextField
         id="url"
-        title={strings.url}
+        title="URL"
         value={urlFromClipboard}
         onChange={(newUrl) => {
           setUrlFromClipboard(newUrl);
@@ -127,10 +123,10 @@ export default function AddClip() {
       />
       <Form.TextField
         id="tags"
-        title={strings.tags}
+        title="Tags"
         value={tags}
         onChange={setTags}
-        placeholder={strings.separateTagsWithComma}
+        placeholder="Separate multiple tags with commas"
       />
     </Form>
   );

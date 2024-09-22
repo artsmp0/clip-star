@@ -2,7 +2,6 @@ import OpenAI from "openai";
 import axios from "axios";
 import { load } from "cheerio";
 import { getPreferenceValues } from "@raycast/api";
-import { getLocalizedStrings } from "./i18n";
 
 interface Preferences {
   model: string;
@@ -58,7 +57,6 @@ async function getWebsiteInfo(url: string): Promise<{ title: string; description
 export async function generateClipTitleAndTags(url: string): Promise<{ title: string; tags: string[] }> {
   const { model } = initializeOpenAI();
   const { title, description } = await getWebsiteInfo(url);
-  const { generateTag } = getLocalizedStrings();
   if (!model || !openai) {
     return {
       title: title || url,
@@ -79,7 +77,7 @@ export async function generateClipTitleAndTags(url: string): Promise<{ title: st
         content: `Generate a concise title and 2-5 relevant tags for this URL: ${url}
           Website title: ${title}
           Website description: ${description}
-          Tags should focus on resource types such as: ${generateTag}
+          Tags should focus on resource types such as: documentation, software, video, article, tutorial, tool, blog, podcast, course, ebook, research paper, forum, database, API, framework, library, app, game, etc.
           If the URL is a Twitter/X post, extract the main topic or theme of the tweet. Use 'tweet' as one of the tags and focus on the content type (e.g., news, opinion, announcement, etc.).
           If no content is available, summarize the URL itself.
           Respond in JSON format with 'title' and 'tags' keys.`,
